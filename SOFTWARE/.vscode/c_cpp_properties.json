@@ -8,10 +8,10 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "D:/ArmRobot/SOFTWARE/include",
-                "D:/ArmRobot/SOFTWARE/src",
+                "D:/ArmRobot-MK2/SOFTWARE/include",
+                "D:/ArmRobot-MK2/SOFTWARE/src",
                 "C:/Users/28342/.platformio/packages/framework-arduinoespressif8266/libraries/Servo/src",
-                "D:/ArmRobot/SOFTWARE/.pio/libdeps/d1_mini/U8g2/src",
+                "D:/ArmRobot-MK2/SOFTWARE/.pio/libdeps/d1_mini/U8g2/src",
                 "C:/Users/28342/.platformio/packages/framework-arduinoespressif8266/libraries/Wire",
                 "C:/Users/28342/.platformio/packages/framework-arduinoespressif8266/libraries/SPI",
                 "C:/Users/28342/.platformio/packages/framework-arduinoespressif8266/tools/sdk/include",
@@ -58,10 +58,10 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "D:/ArmRobot/SOFTWARE/include",
-                    "D:/ArmRobot/SOFTWARE/src",
+                    "D:/ArmRobot-MK2/SOFTWARE/include",
+                    "D:/ArmRobot-MK2/SOFTWARE/src",
                     "C:/Users/28342/.platformio/packages/framework-arduinoespressif8266/libraries/Servo/src",
-                    "D:/ArmRobot/SOFTWARE/.pio/libdeps/d1_mini/U8g2/src",
+                    "D:/ArmRobot-MK2/SOFTWARE/.pio/libdeps/d1_mini/U8g2/src",
                     "C:/Users/28342/.platformio/packages/framework-arduinoespressif8266/libraries/Wire",
                     "C:/Users/28342/.platformio/packages/framework-arduinoespressif8266/libraries/SPI",
                     "C:/Users/28342/.platformio/packages/framework-arduinoespressif8266/tools/sdk/include",
