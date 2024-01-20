@@ -9,9 +9,9 @@ extern "C"{
 }
 #include "ArmControl.h"
 
-void DialogScaleShow(uint16_t x,uint16_t y,uint16_t Targrt_w,uint16_t Targrt_h);
+void DialogScaleShow(uint16_t x,uint16_t y,uint16_t w,uint16_t h);
 void Quit_Inspect(void);
-
+void AppBreak(void);
 void White_Dark_Day(void);
 void Show_MPU6050(void);
 void Show_GitHub(void);
@@ -26,7 +26,8 @@ void Arm_SetBaseAngle(void);
 void Arm_SetBigArmAngle(void);
 void Arm_SetForearmAngle(void);
 void ArmMotionInit(void);
-void ArmAngle_Move(void);
+void ArmMotionSave(void);
+void MotionRun(void);
 void ResetAngle(void);
 
 #endif

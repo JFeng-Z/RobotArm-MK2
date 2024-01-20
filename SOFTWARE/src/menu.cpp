@@ -13,26 +13,15 @@ uint8_t Dialog_Time = 10;
 Error Cursor;
 
 /* Page*/
-xpMenu NowPage;
 xMenu
-    MainPage,                          // 一级Page
-    Page1, Page5, // 二级Page
-    No3Page1, No3Page2,      // 三级Page
-    ArmRobotPage,ArmAxisPage,ArmAnglePage;
-
+    Home_Page, 
+    System_Page, ArmAxis_Page, ArmAngle_Page, Games_Page;
 /* item */
-// 一级Page的item
-xpItem Selectitm;
-xItem Mainitem1, Mainitem5;
-// 二级Page的item
-xItem Page1item1, Page1item2, Page1item3, Page1item4;
-xItem Page5item1, Page5item2, Page5item3, Page5item4;
-// 三级Page的item
-xItem No3Page1item1, No3Page1item2, No3Page1item3, No3Page1item4, No3Page1item5,
-      No3Page2item1, No3Page2item2, ArmRobotItem, No3Page2item4;
-xItem ArmControlReturn_Item;
-xItem ArmAxis_Item, Arm_ItemX, Arm_ItemY, Arm_ItemZ, AxisMove_Item, ArmAxisReturn_Item;
-xItem ArmAngle_Item, BaseAngle_Item, BigArmAngle_Item, ForearmAngle_Item, ArmAngleReturn_Item, AngleMove_Item, ExecuteMotions_Item, Reset_Item;
+xItem Main_Item, System_Item, ArmAxis_Item, ArmAngle_Item, Games_Item, ShowLogo_Item, Github_Item, Bilibili_Item, ReadME_Item;
+xItem MPU6050_Item, Speed_Item, Mode_Item, Clock_Item, SystemReturn_Item;
+xItem Arm_ItemX, Arm_ItemY, Arm_ItemZ, AxisMove_Item, ArmAxisReturn_Item;
+xItem BaseAngle_Item, BigArmAngle_Item, ForearmAngle_Item, ArmAngleReturn_Item, AngleMove_Item, ExecuteMotions_Item, Reset_Item;
+xItem Dino_Item, AirPlane_Item, GamesReturn_Item;
 
 void AddPage(const char *name, xpMenu page)
 {
@@ -297,61 +286,45 @@ void Draw_Menu(uint8_t pos, xpMenu Page, uint8_t LineSpacing, xpItem now_item,xp
 
 void Menu_Team(void)
 {
-    NowPage = &MainPage;
-    Selectitm = &Mainitem1;
-    MainPage.ParentiTem = NULL;
-
-    AddPage("[MainPage]", &MainPage);
-    AddItem(" +Application", &Mainitem1, &MainPage, &Page1, NULL);
-    AddItem(" +About", &Mainitem5, &MainPage, &Page5, NULL);
-
-        AddPage("[Application]", &Page1);
-        AddItem(" +System", &Page1item1, &Page1, &No3Page1, NULL);
-        AddItem(" +Games", &Page1item2, &Page1, &No3Page2, NULL);
-        AddItem(" -ShowLog", &Page1item3, &Page1, &MainPage, Show_Log);
-        AddItem(" -Return", &Page1item4, &Page1, &MainPage, NULL);
-
-            AddPage("[System]", &No3Page1);
-            AddItem(" -MPU6050", &No3Page1item1, &No3Page1, &No3Page1, Show_MPU6050);
-            AddItem(" -Speed", &No3Page1item2, &No3Page1, &No3Page1, Setting_Speed);
-            AddItem(" -Mode", &No3Page1item3, &No3Page1, &No3Page1, White_Dark_Day);
-            AddItem(" -Clock", &No3Page1item4, &No3Page1, &No3Page1, NULL);
-            AddItem(" -Return", &No3Page1item5, &No3Page1, &Page1, NULL);
-
-            AddPage("[Games]", &No3Page2);
-            AddItem(" -Dino Game", &No3Page2item1, &No3Page2, &No3Page2, NULL);
-            AddItem(" -AirPlane Game", &No3Page2item2, &No3Page2, &No3Page2, NULL);
-            AddItem(" +ArmRobot", &ArmRobotItem, &No3Page2, &ArmRobotPage, NULL);
-                AddPage("[ArmRobotControl]",&ArmRobotPage);
-                    AddItem(" +ArmAxis",&ArmAxis_Item,&ArmRobotPage,&ArmAxisPage,NULL);
-                        AddPage("[ArmAxis]", &ArmAxisPage);
-                            AddItem(" -X", &Arm_ItemX, &ArmAxisPage, &ArmAxisPage, Arm_SetX);
-                            AddItem(" -Y", &Arm_ItemY, &ArmAxisPage, &ArmAxisPage, Arm_SetY);
-                            AddItem(" -Z", &Arm_ItemZ, &ArmAxisPage, &ArmAxisPage, Arm_SetZ);
-                            AddItem(" -Move", &AxisMove_Item, &ArmAxisPage, &ArmAxisPage, ArmAxis_Move);
-                            AddItem(" -Return", &ArmAxisReturn_Item, &ArmAxisPage, &ArmRobotPage, NULL);
-                    AddItem(" +ArmAngle",&ArmAngle_Item,&ArmRobotPage,&ArmAnglePage,NULL);
-                        AddPage("[ArmAngle]", &ArmAnglePage);
-                            AddItem(" -Base", &BaseAngle_Item, &ArmAnglePage, &ArmAnglePage, Arm_SetBaseAngle);
-                            AddItem(" -BigArm", &BigArmAngle_Item, &ArmAnglePage, &ArmAnglePage, Arm_SetBigArmAngle);
-                            AddItem(" -Forearm", &ForearmAngle_Item, &ArmAnglePage, &ArmAnglePage, Arm_SetForearmAngle);
-                            AddItem(" -Move", &AngleMove_Item, &ArmAnglePage, &ArmAnglePage, ArmAngle_Move);
-                            AddItem(" -Execute_Motions", &ExecuteMotions_Item, &ArmAnglePage, &ArmAnglePage, Execute_Motions);
-                            AddItem(" -Reset", &Reset_Item, &ArmAnglePage, &ArmAnglePage, ResetAngle);
-                            AddItem(" -Return", &ArmAngleReturn_Item, &ArmAnglePage, &ArmRobotPage, NULL);
-                    AddItem(" -Return", &ArmControlReturn_Item, &ArmRobotPage, &No3Page2, NULL);
-            AddItem(" -Return", &No3Page2item4, &No3Page2, &Page1, NULL);
-
-        AddPage("[About]", &Page5);
-        AddItem(" -Github", &Page5item1, &Page5, &Page5, Show_GitHub);
-        AddItem(" -Bilibili", &Page5item2, &Page5, &Page5, Show_Bilibili);
-        AddItem(" -ReadME", &Page5item3, &Page5, &Page5, NULL);
-        AddItem(" -Return", &Page5item4, &Page5, &MainPage, NULL);
+    AddPage("[HomePage]", &Home_Page);
+        AddItem(" +System", &System_Item, &Home_Page, &System_Page, NULL);
+            AddPage("[System]", &System_Page);
+                AddItem(" -MPU6050", &MPU6050_Item, &System_Page, &System_Page, Show_MPU6050);
+                AddItem(" -Speed", &Speed_Item, &System_Page, &System_Page, Setting_Speed);
+                AddItem(" -Mode", &Mode_Item, &System_Page, &System_Page, White_Dark_Day);
+                AddItem(" -Clock", &Clock_Item, &System_Page, &System_Page, NULL);
+                AddItem(" -Return", &SystemReturn_Item, &System_Page, &Home_Page, NULL);
+        AddItem(" +ArmAxis",&ArmAxis_Item,&Home_Page,&ArmAxis_Page,NULL);
+            AddPage("[ArmAxis]", &ArmAxis_Page);
+                AddItem(" -X", &Arm_ItemX, &ArmAxis_Page, &ArmAxis_Page, Arm_SetX);
+                AddItem(" -Y", &Arm_ItemY, &ArmAxis_Page, &ArmAxis_Page, Arm_SetY);
+                AddItem(" -Z", &Arm_ItemZ, &ArmAxis_Page, &ArmAxis_Page, Arm_SetZ);
+                AddItem(" -Move", &AxisMove_Item, &ArmAxis_Page, &ArmAxis_Page, ArmAxis_Move);
+                AddItem(" -Return", &ArmAxisReturn_Item, &ArmAxis_Page, &Home_Page, NULL);
+        AddItem(" +ArmAngle",&ArmAngle_Item,&Home_Page,&ArmAngle_Page,NULL);
+            AddPage("[ArmAngle]", &ArmAngle_Page);
+                AddItem(" -Base", &BaseAngle_Item, &ArmAngle_Page, &ArmAngle_Page, Arm_SetBaseAngle);
+                AddItem(" -BigArm", &BigArmAngle_Item, &ArmAngle_Page, &ArmAngle_Page, Arm_SetBigArmAngle);
+                AddItem(" -Forearm", &ForearmAngle_Item, &ArmAngle_Page, &ArmAngle_Page, Arm_SetForearmAngle);
+                AddItem(" -Move", &AngleMove_Item, &ArmAngle_Page, &ArmAngle_Page, ArmMotionSave);
+                AddItem(" -Execute_Motions", &ExecuteMotions_Item, &ArmAngle_Page, &ArmAngle_Page, MotionRun);
+                AddItem(" -Reset", &Reset_Item, &ArmAngle_Page, &ArmAngle_Page, ResetAngle);
+                AddItem(" -Return", &ArmAngleReturn_Item, &ArmAngle_Page, &Home_Page, NULL);
+        AddItem(" +Games", &Games_Item, &Home_Page, &Games_Page, NULL);
+            AddPage("[Games]", &Games_Page);
+                AddItem(" -Dino Game", &Dino_Item, &Games_Page, &Games_Page, NULL);
+                AddItem(" -AirPlane Game", &AirPlane_Item, &Games_Page, &Games_Page, NULL);
+                AddItem(" -Return", &GamesReturn_Item, &Games_Page, &Home_Page, NULL);
+        AddItem(" -ShowLogo", &ShowLogo_Item, &Home_Page, &Home_Page, Show_Log);
+        AddItem(" -Github", &Github_Item, &Home_Page, &Home_Page, Show_GitHub);
+        AddItem(" -Bilibili", &Bilibili_Item, &Home_Page, &Home_Page, Show_Bilibili);
+        AddItem(" -ReadME", &ReadME_Item, &Home_Page, &Home_Page, NULL);
 }
 
 uint8_t MENU_STATE = MENU_RUN;
 uint8_t disapper = 1;
-xpItem temp_item = &Mainitem1;
+//初始化为开始菜单项
+xpItem temp_item = &System_Item;
 Itemfunction App_Function;
 
 void Switch_Menu_State(uint8_t state)
@@ -449,5 +422,6 @@ void Menu_Init(void)
     Menu_Team();
     ArmMotionInit();
     Draw_Process();
-    Draw_Menu(FirstPos, &MainPage, Font_Size, &Mainitem1, &Mainitem1);
+    //画出第一页菜单
+    Draw_Menu(FirstPos, &Home_Page, Font_Size, &System_Item, &System_Item);
 }

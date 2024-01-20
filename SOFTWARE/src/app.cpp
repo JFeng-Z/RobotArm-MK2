@@ -6,11 +6,11 @@ extern uint8_t BgColor;
 
 uint8_t IntoState=false;
 
-void DialogScaleShow(uint16_t x,uint16_t y,uint16_t Targrt_w,uint16_t Targrt_h)
+void DialogScaleShow(uint16_t x,uint16_t y,uint16_t w,uint16_t h)
 {
     if(IntoState==false)
     {
-        DialogScale_Show(x,y,Targrt_w,Targrt_h);
+        DialogScale_Show(x,y,w,h);
         IntoState=true;
     }
 }
@@ -25,10 +25,17 @@ void Quit_Inspect(void)
     }
 }
 
+void AppBreak(void)
+{
+    Switch_Menu_State(APP_BREAK);
+    if(IntoState==true)
+    IntoState=false;
+}
+
 void White_Dark_Day(void)
 {
     BgColor=BgColor^0x01;
-    Switch_Menu_State(APP_BREAK);
+    AppBreak();
 }
 
 void Show_MPU6050(void)
@@ -59,13 +66,10 @@ void Show_GitHub(void)
     const char* GitHub2="JFeng-Z/MultMenu";
 
     DialogScaleShow(2,12,125,32);
-
-    Quit_Inspect();
-
     u8g2.drawStr(8,25,GitHub1);
     u8g2.drawStr(8,37,GitHub2);
     u8g2.sendBuffer();
-    
+    AppBreak();
 }
 
 void Show_Bilibili(void)
@@ -74,10 +78,9 @@ void Show_Bilibili(void)
 
     DialogScaleShow(22,24,82,20);
 
-    Quit_Inspect();
     u8g2.drawStr(28,37,Bilibili);
     u8g2.sendBuffer();
-    
+    AppBreak();
 }
 
 extern uint8_t Options_Time;
@@ -138,7 +141,7 @@ void Show_Log(void)
     u8g2.clearBuffer();
     u8g2.drawXBMP(32,0,64,64,Log);
     u8g2.sendBuffer();
-    Quit_Inspect();
+    AppBreak();
 }
 
 int x=0,y=0,z=0;
@@ -247,10 +250,27 @@ void Arm_SetForearmAngle(void)
     u8g2.sendBuffer();
 }
 
-void ArmAngle_Move(void)
+void ArmMotionSave(void)
 {
+    DialogScaleShow(4,12,120,32);
+
     AngleMove(Base_Angle,BigArm_Angle,Forearm_Angle);
-    MotionSave(Base_Angle,BigArm_Angle,Forearm_Angle);
+    uint8_t ID = MotionSave(Base_Angle,BigArm_Angle,Forearm_Angle);
+    u8g2.setCursor(8, 25);
+    u8g2.printf("Successfully saved");
+    u8g2.setCursor(8, 37);
+    u8g2.printf("Motion:%d",ID);
+    u8g2.sendBuffer();
+    AppBreak();
+}
+
+void MotionRun(void)
+{
+    DialogScaleShow(4,12,120,32);
+    u8g2.drawStr(8,25,"Motion runing");
+    u8g2.sendBuffer();
+    Execute_Motions();
+    AppBreak();
 }
 
 void ResetAngle(void)
@@ -261,5 +281,5 @@ void ResetAngle(void)
     SetBaseAngle(Base_Angle);
     SetBigArmAngle(BigArm_Angle);
     SetForearmAngle(Forearm_Angle);
-    Quit_Inspect();
+    AppBreak();
 }

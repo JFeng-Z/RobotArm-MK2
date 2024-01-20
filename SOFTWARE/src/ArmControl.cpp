@@ -64,7 +64,6 @@ void AngleMove(uint8_t BaseTargrt, uint8_t BigArmTargrt ,uint8_t ForearmTargrt)
     uint8_t base = Base.read(), bigArmTargrt = BigArm.read(),forearm = Forearm.read();
     for (double t = 0; t <= tf; t +=timestep) 
     { 
-        Quit_Inspect();
         SetBaseAngle(TripleDiff(base,BaseTargrt,tf,t));
         SetBigArmAngle(TripleDiff(bigArmTargrt,BigArmTargrt,tf,t));
         SetForearmAngle(TripleDiff(forearm,ForearmTargrt,tf,t));
@@ -72,7 +71,6 @@ void AngleMove(uint8_t BaseTargrt, uint8_t BigArmTargrt ,uint8_t ForearmTargrt)
 }
 
 pArmMotion pm,head,tail; 
-uint8_t ID;
 
 void ArmMotionInit(void)
 {
@@ -82,8 +80,10 @@ void ArmMotionInit(void)
     head->next_motion = NULL;
 }
 
-void MotionSave(uint8_t BaseAng, uint8_t BigArmAng ,uint8_t ForearmAng)
+uint8_t MotionSave(uint8_t BaseAng, uint8_t BigArmAng ,uint8_t ForearmAng)
 {
+    static uint8_t ID;
+    ID ++;
     pm = (pArmMotion)malloc(sizeof(ArmMotion));
     tail->next_motion = pm;
     tail = pm;
@@ -92,17 +92,16 @@ void MotionSave(uint8_t BaseAng, uint8_t BigArmAng ,uint8_t ForearmAng)
     tail->bigArm_angle = BigArmAng;
     tail->forearm_angle = ForearmAng;
     tail->next_motion = NULL;
-    ID ++;
+    return ID;
 }
 
 void Execute_Motions(void)
 {
     pArmMotion current_motion = head; // 从第一个节点开始
-    
     while (current_motion != NULL) {
         // 执行当前节点中保存的动作
         AngleMove(current_motion->base_angle, current_motion->bigArm_angle, current_motion->forearm_angle);
-        
+        Quit_Inspect();
         current_motion = current_motion->next_motion; // 移到下一个节点
     }
 }
