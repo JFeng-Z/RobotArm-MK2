@@ -32,7 +32,7 @@ void ARM_Control(int x,int y,int z);
 double TripleDiff(double Now, double Targrt,double AllTime,double NowTime);
 void AngleMove(uint8_t BaseTargrt, uint8_t BigArmTargrt ,uint8_t ForearmTargrt);
 void ArmMotionInit(void);
-uint8_t MotionSave(uint8_t BaseAng, uint8_t BigArmAng ,uint8_t ForearmAng);
+void MotionSave(uint8_t BaseAng, uint8_t BigArmAng ,uint8_t ForearmAng);
 void Execute_Motions(void);
 
 #endif

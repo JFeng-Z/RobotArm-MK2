@@ -9,8 +9,9 @@ extern "C"{
 }
 #include "ArmControl.h"
 
-void DialogScaleShow(uint16_t x,uint16_t y,uint16_t w,uint16_t h);
-void Quit_Inspect(void);
+void DialogScaleShow(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+void Draw_Scrollbar(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint16_t r, double min, double max, uint16_t NowValue);
+bool Quit_Inspect(void);
 void AppBreak(void);
 void White_Dark_Day(void);
 void Show_MPU6050(void);

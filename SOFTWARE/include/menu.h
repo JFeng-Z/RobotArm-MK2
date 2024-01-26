@@ -76,7 +76,7 @@ void Draw_Process(void);
 void Draw_OptionPlace(uint8_t now_time, xpItem now_item, xpItem next_item);
 void Draw_DialogBox(u8g2_uint_t x,u8g2_uint_t y,u8g2_uint_t w,u8g2_uint_t h);
 void Draw_DialogRBox(u8g2_uint_t x,u8g2_uint_t y,u8g2_uint_t w,u8g2_uint_t h,u8g2_uint_t r);
-void DialogScale_Show(uint16_t x,uint16_t y,uint16_t Targrt_w,uint16_t Targrt_h);
+void DialogScale_Show(uint8_t x,uint8_t y,uint8_t Targrt_w,uint8_t Targrt_h);
 void Draw_Page(uint8_t pos, xpMenu Page, uint8_t LineSpacing, xpItem now_item,xpItem next_item);
 void Draw_Menu(uint8_t pos, xpMenu Page, uint8_t LineSpacing, xpItem now_item,xpItem next_item);
 uint8_t ui_disapper(uint8_t disapper);

@@ -74,13 +74,13 @@ pArmMotion pm,head,tail;
 
 void ArmMotionInit(void)
 {
-    pm = (pArmMotion)malloc(sizeof(ArmMotion));
+    pm = (pArmMotion)malloc(sizeof(xArmMotion));
     head = pm;
     tail = pm;
     head->next_motion = NULL;
 }
 
-uint8_t MotionSave(uint8_t BaseAng, uint8_t BigArmAng ,uint8_t ForearmAng)
+void MotionSave(uint8_t BaseAng, uint8_t BigArmAng ,uint8_t ForearmAng)
 {
     static uint8_t ID;
     ID ++;
@@ -92,16 +92,19 @@ uint8_t MotionSave(uint8_t BaseAng, uint8_t BigArmAng ,uint8_t ForearmAng)
     tail->bigArm_angle = BigArmAng;
     tail->forearm_angle = ForearmAng;
     tail->next_motion = NULL;
-    return ID;
 }
 
 void Execute_Motions(void)
 {
     pArmMotion current_motion = head; // 从第一个节点开始
-    while (current_motion != NULL) {
-        // 执行当前节点中保存的动作
-        AngleMove(current_motion->base_angle, current_motion->bigArm_angle, current_motion->forearm_angle);
-        Quit_Inspect();
-        current_motion = current_motion->next_motion; // 移到下一个节点
+    while (1)
+    {
+        while (current_motion != NULL) {
+            // 执行当前节点中保存的动作
+            AngleMove(current_motion->base_angle, current_motion->bigArm_angle, current_motion->forearm_angle);
+            if(Quit_Inspect() == true)return ;
+            current_motion = current_motion->next_motion; // 移到下一个节点
+        }
+        current_motion = head;
     }
 }

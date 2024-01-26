@@ -15,12 +15,12 @@ Error Cursor;
 /* Page*/
 xMenu
     Home_Page, 
-    System_Page, ArmAxis_Page, ArmAngle_Page, Games_Page;
+    System_Page, ArmAxis_Page, ArmAngle_Page, MotionTree_Page, Games_Page;
 /* item */
 xItem Main_Item, System_Item, ArmAxis_Item, ArmAngle_Item, Games_Item, ShowLogo_Item, Github_Item, Bilibili_Item, ReadME_Item;
 xItem MPU6050_Item, Speed_Item, Mode_Item, Clock_Item, SystemReturn_Item;
 xItem Arm_ItemX, Arm_ItemY, Arm_ItemZ, AxisMove_Item, ArmAxisReturn_Item;
-xItem BaseAngle_Item, BigArmAngle_Item, ForearmAngle_Item, ArmAngleReturn_Item, AngleMove_Item, ExecuteMotions_Item, Reset_Item;
+xItem BaseAngle_Item, BigArmAngle_Item, ForearmAngle_Item, ArmAngleReturn_Item, AngleMove_Item, MotionTree_Item, MotionTreeReturn_Item, ExecuteMotions_Item, Reset_Item;
 xItem Dino_Item, AirPlane_Item, GamesReturn_Item;
 
 void AddPage(const char *name, xpMenu page)
@@ -34,13 +34,14 @@ void AddItem(const char *Name, xpItem item, xpMenu LocalPage, xpMenu nextpage, I
 {
     item->itemName = Name;
     item->location = LocalPage;
-    item->JumpPage = nextpage;
     item->Itemfunction = function;
     /* 新建item的下一个肯定是null */
     item->nextiTem = NULL;
     /* 如果可以跳转，那么此item是跳转页面的父级 */
     if (nextpage != NULL)
-        nextpage->ParentiTem = item;
+    nextpage->ParentiTem = item;
+    else nextpage = LocalPage;
+    item->JumpPage = nextpage;
     /* 链式结构创建item */
     if (LocalPage->itemHead == NULL) // 如果是第一个iTem
     {
@@ -93,15 +94,12 @@ void Draw_Process(void)
     u8g2.drawStr(32, 16, "Mr.JFeng");
     u8g2.setFont(MENU_FONT);
     
-    for(size_t i = 10; i <= 80; i += 2)
+    for(size_t i = 6; i <= 100; i += 2)
     {
         char buff[6];
-        int percentage = (int)(i/80.0*100);
-        sprintf(buff, "%02d%%", percentage);
-        
+        sprintf(buff, "%02d%%", i);
         u8g2.drawStr(100, 41, buff);
-        u8g2.drawRBox(16, 32, i, 10, 4);
-        u8g2.drawRFrame(16, 32, 80, 10, 4);
+        Draw_Scrollbar(16, 32, 80, 10, 4, 0, 100, i);
         u8g2.sendBuffer();
     }
 }
@@ -132,10 +130,10 @@ void Draw_DialogRBox(u8g2_uint_t x,u8g2_uint_t y,u8g2_uint_t w,u8g2_uint_t h,u8g
  * @param Targrt_w 目标宽度
  * @param Targrt_h 目标高度
  */
-void DialogScale_Show(uint16_t x,uint16_t y,uint16_t Targrt_w,uint16_t Targrt_h)
+void DialogScale_Show(uint8_t x,uint8_t y,uint8_t Targrt_w,uint8_t Targrt_h)
 {
     uint8_t t = 0;
-    uint16_t Init_w = 0,Init_h = 0;
+    uint8_t Init_w = 0,Init_h = 0;
 
     do
     {
@@ -289,7 +287,7 @@ void Menu_Team(void)
     AddPage("[HomePage]", &Home_Page);
         AddItem(" +System", &System_Item, &Home_Page, &System_Page, NULL);
             AddPage("[System]", &System_Page);
-                AddItem(" -MPU6050", &MPU6050_Item, &System_Page, &System_Page, Show_MPU6050);
+                AddItem(" -MPU6050", &MPU6050_Item, &System_Page, NULL, Show_MPU6050);
                 AddItem(" -Speed", &Speed_Item, &System_Page, &System_Page, Setting_Speed);
                 AddItem(" -Mode", &Mode_Item, &System_Page, &System_Page, White_Dark_Day);
                 AddItem(" -Clock", &Clock_Item, &System_Page, &System_Page, NULL);
@@ -306,8 +304,12 @@ void Menu_Team(void)
                 AddItem(" -Base", &BaseAngle_Item, &ArmAngle_Page, &ArmAngle_Page, Arm_SetBaseAngle);
                 AddItem(" -BigArm", &BigArmAngle_Item, &ArmAngle_Page, &ArmAngle_Page, Arm_SetBigArmAngle);
                 AddItem(" -Forearm", &ForearmAngle_Item, &ArmAngle_Page, &ArmAngle_Page, Arm_SetForearmAngle);
-                AddItem(" -Move", &AngleMove_Item, &ArmAngle_Page, &ArmAngle_Page, ArmMotionSave);
-                AddItem(" -Execute_Motions", &ExecuteMotions_Item, &ArmAngle_Page, &ArmAngle_Page, MotionRun);
+                AddItem(" -Motion Save", &AngleMove_Item, &ArmAngle_Page, &ArmAngle_Page, ArmMotionSave);
+                AddItem(" -Motion Tree", &MotionTree_Item, &ArmAngle_Page, &MotionTree_Page, NULL);
+                    AddPage("[Motion Tree]", &MotionTree_Page);
+                    /*动作树*/
+                    AddItem(" ---", &MotionTreeReturn_Item, &MotionTree_Page, &ArmAngle_Page, NULL);
+                    AddItem(" -Loop", &ExecuteMotions_Item, &MotionTree_Page, &ArmAngle_Page, MotionRun);
                 AddItem(" -Reset", &Reset_Item, &ArmAngle_Page, &ArmAngle_Page, ResetAngle);
                 AddItem(" -Return", &ArmAngleReturn_Item, &ArmAngle_Page, &Home_Page, NULL);
         AddItem(" +Games", &Games_Item, &Home_Page, &Games_Page, NULL);
