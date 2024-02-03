@@ -1,5 +1,6 @@
 #include "button.h"
 
+//ADC按键检测
 BtnState ButtonScan(void)
 {
     int Sensor=analogRead(A0);

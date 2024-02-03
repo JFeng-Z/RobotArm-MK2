@@ -14,6 +14,7 @@
         "random": "cpp",
         "u8g2lib.h": "c",
         "button.h": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "arduino.h": "c"
     }
 }

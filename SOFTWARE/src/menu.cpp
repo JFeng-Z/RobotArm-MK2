@@ -1,40 +1,42 @@
 #include "Menu.h"
+#include "ArmRobotConfig.h"
+#include "disp_dirver.h"
 
-U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0,U8X8_PIN_NONE, SCL, SDA);
-
-uint8_t Page_State = 0;
+Menu_State Page_State;
 //1为白天模式，0为黑夜模式
 uint8_t BgColor = 0x00;  
 //选项缓动动画持续时间（次数）
-uint8_t Options_Time = 8;
+int Options_Time = 8;
 //对话框缓动动画持续时间（次数）
 uint8_t Dialog_Time = 10;
 
-Error Cursor;
+Pid_Error Cursor;
 
 /* Page*/
-xMenu
+xPage
     Home_Page, 
     System_Page, ArmAxis_Page, ArmAngle_Page, MotionTree_Page, Games_Page;
 /* item */
 xItem Main_Item, System_Item, ArmAxis_Item, ArmAngle_Item, Games_Item, ShowLogo_Item, Github_Item, Bilibili_Item, ReadME_Item;
-xItem MPU6050_Item, Speed_Item, Mode_Item, Clock_Item, SystemReturn_Item;
+xItem MPU6050_Item, Speed_Item, Mode_Item, Contrast_Item, Power_Item, SystemReturn_Item;
 xItem Arm_ItemX, Arm_ItemY, Arm_ItemZ, AxisMove_Item, ArmAxisReturn_Item;
-xItem BaseAngle_Item, BigArmAngle_Item, ForearmAngle_Item, ArmAngleReturn_Item, AngleMove_Item, MotionTree_Item, MotionTreeReturn_Item, ExecuteMotions_Item, Reset_Item;
+xItem BaseAngle_Item, BigArmAngle_Item, ForearmAngle_Item, ClampAngle_Item, ArmAngleReturn_Item, AngleMove_Item, MotionTree_Item, MotionTreeReturn_Item, ExecuteMotions_Item, Reset_Item;
 xItem Dino_Item, AirPlane_Item, GamesReturn_Item;
 
-void AddPage(const char *name, xpMenu page)
+void AddPage(const char *name, xpPage page)
 {
     page->PageName = name;
     page->itemHead = NULL;
     page->itemTail = NULL;
 }
 
-void AddItem(const char *Name, xpItem item, xpMenu LocalPage, xpMenu nextpage, Itemfunction function)
+void AddItem(const char *Name, Item_Type Type, int *Data, xpItem item, xpPage LocalPage, xpPage nextpage, Itemfunction function)
 {
-    item->itemName = Name;
+    item->ItemName = Name;
+    item->ItemType = Type;
+    if(Type == DATA)item->data = Data;
     item->location = LocalPage;
-    item->Itemfunction = function;
+    item->item_function = function;
     /* 新建item的下一个肯定是null */
     item->nextiTem = NULL;
     /* 如果可以跳转，那么此item是跳转页面的父级 */
@@ -74,7 +76,7 @@ int8_t Line(uint8_t AllTime, uint8_t Time_Now, int8_t Targrt, int8_t Now)
     return (Targrt - Now)*Time_Now/AllTime + Now;		
 }
 
-uint8_t PID(int8_t Targrt, int8_t Now, Error *Obj)
+uint8_t PID(int8_t Targrt, int8_t Now, Pid_Error *Obj)
 {
     int x = Now;
     float Kp = 0.5,ki = 0.1,kd = 0.25;
@@ -86,40 +88,34 @@ uint8_t PID(int8_t Targrt, int8_t Now, Error *Obj)
     Obj->last_error = Obj->error;
     return x;
 }
-
-void Draw_Process(void)
+//首页
+void Draw_Home(void)
 {
-    u8g2.clearBuffer();
-    u8g2.setFont(u8g2_font_profont15_mf);
-    u8g2.drawStr(32, 16, "Mr.JFeng");
-    u8g2.setFont(MENU_FONT);
-    
-    for(size_t i = 6; i <= 100; i += 2)
+    OLED_SetFont(u8g2_font_10x20_me);
+    for (size_t i = 0; i < 40; i++)
     {
-        char buff[6];
-        sprintf(buff, "%02d%%", i);
-        u8g2.drawStr(100, 41, buff);
-        Draw_Scrollbar(16, 32, 80, 10, 4, 0, 100, i);
-        u8g2.sendBuffer();
+        OLED_ClearBuffer();
+        OLED_DrawStr(25, i, "MultMenu");
+        OLED_SendBuffer();
     }
 }
 
 void Draw_DialogBox(u8g2_uint_t x,u8g2_uint_t y,u8g2_uint_t w,u8g2_uint_t h)
 {
-    u8g2.setDrawColor(BgColor^0x01);
-    u8g2.drawFrame(x, y, w, h);
-    u8g2.setDrawColor(BgColor);
-    u8g2.drawBox(x+1, y+1, w-2, h-2);
-    u8g2.setDrawColor(BgColor^0x01);
+    OLED_SetDrawColor(BgColor^0x01);
+    OLED_DrawFrame(x, y, w, h);
+    OLED_SetDrawColor(BgColor);
+    OLED_DrawBox(x+1, y+1, w-2, h-2);
+    OLED_SetDrawColor(BgColor^0x01);
 }
 
 void Draw_DialogRBox(u8g2_uint_t x,u8g2_uint_t y,u8g2_uint_t w,u8g2_uint_t h,u8g2_uint_t r)
 {
-    u8g2.setDrawColor(BgColor^0x01);
-    u8g2.drawRFrame(x, y, w, h, r);
-    u8g2.setDrawColor(BgColor);
-    u8g2.drawRBox(x+1, y+1, w-2, h-2, r);
-    u8g2.setDrawColor(BgColor^0x01);
+    OLED_SetDrawColor(BgColor^0x01);
+    OLED_DrawRFrame(x, y, w, h, r);
+    OLED_SetDrawColor(BgColor);
+    OLED_DrawRBox(x+1, y+1, w-2, h-2, r);
+    OLED_SetDrawColor(BgColor^0x01);
 }
 /**
  * @brief 对话框出现函数
@@ -141,7 +137,7 @@ void DialogScale_Show(uint8_t x,uint8_t y,uint8_t Targrt_w,uint8_t Targrt_h)
         Init_w=Line(Dialog_Time, t, Targrt_w, Init_w);
         Init_h=Line(Dialog_Time, t, Targrt_h, Init_h);
         Draw_DialogBox(x, y, Init_w, Init_h);
-        u8g2.sendBuffer();
+        OLED_SendBuffer();
     } while (t < Dialog_Time);
 
 }
@@ -153,8 +149,8 @@ void DialogScale_Show(uint8_t x,uint8_t y,uint8_t Targrt_w,uint8_t Targrt_h)
 uint8_t ui_disapper(uint8_t disapper)
 { 
     short disapper_temp = 0;
-    int len = 8 * u8g2.getBufferTileHeight() * u8g2.getBufferTileWidth();
-    u8 *p = u8g2.getBufferPtr(); 
+    int len = 8 * OLED_GetBufferTileHeight() * OLED_GetBufferTileWidth();
+    u8 *p = OLED_GetBufferPtr(); 
     if(BgColor==0)
     {  for( int i = 0;i < len ;i++) 
     { p[i] = p[i] & (rand()%0xff) >> disapper; } }
@@ -164,12 +160,13 @@ uint8_t ui_disapper(uint8_t disapper)
     disapper += 2; 
     if(disapper >= 8) 
     {disapper = 0; } 
-    u8g2.sendBuffer();
+    OLED_SendBuffer();
     disapper_temp = disapper;
     return disapper_temp;
 }
+
 /**
- * @brief 选项栏
+ * @brief 导航栏
  * 
  * @param now_time 
  * @param now_item 
@@ -177,73 +174,77 @@ uint8_t ui_disapper(uint8_t disapper)
  */
 void Draw_OptionPlace(uint8_t now_time, xpItem now_item, xpItem next_item)
 {
-    static uint8_t now_Y = 0;
-    static uint8_t next_Y = 0;
-    next_Y=(next_item->id - 1)*(64/next_item->location->len);
-    u8g2.drawVLine(122, 2, 64);
-    for (size_t i = 0; i < next_item->location->len; i++)
-    {
-        u8g2.drawHLine(119, i*(64/next_item->location->len)+2, 6);
-    }
-    now_Y=Line(Options_Time, now_time, next_Y, now_Y);
-    u8g2.drawBox(118, now_Y, 8, 4);
+    static uint8_t Now_Lenght;
+    static uint8_t Next_Lenght;
+    Next_Lenght = (VER_RES / (float)(next_item->location->len)) * next_item->id;
+    Now_Lenght = Line(Options_Time, now_time, Next_Lenght, Now_Lenght);
+    OLED_DrawLine(HOR_RES - 7, 0, HOR_RES - 7, 64);
+    OLED_DrawBox(HOR_RES - 10, 0, 6, Now_Lenght);
 }
 
-void Draw_Page(uint8_t pos, xpMenu Page, uint8_t LineSpacing, xpItem now_item,xpItem next_item)
+void Draw_Page(uint8_t pos, xpPage Page, uint8_t LineSpacing, xpItem now_item,xpItem next_item)
 {
-    static int8_t first_line = FirstLine;
+    char Data[10] = {0};
+    static int16_t first_line = FirstLine;
     xpItem temp = Page->itemHead;
-    
-    if(next_item == now_item->JumpPage->itemHead && next_item != now_item)    //切换页面时变量初始化
-    first_line = FirstLine;
-    if (((next_item->id - now_item->id)>0) && Page_State == CURSOR_STATIC)
+    //切换页面时变量初始化
+    if(next_item == now_item->JumpPage->itemHead && next_item != now_item)first_line = FirstLine;
+
+    if (Page_State == CURSOR_STATIC)
     {
+        if ((next_item->id - now_item->id) > 0)first_line -= ((next_item->id - now_item->id) > (Page->len - MaxVisible_Number)) ? ((Page->len - MaxVisible_Number) * Font_Size) : Font_Size;
+        else first_line += ((now_item->id - next_item->id) > (Page->len - MaxVisible_Number)) ? ((Page->len - MaxVisible_Number) * Font_Size) : Font_Size;
         Page_State = MENU_MOVE;
-        if((next_item->id - now_item->id) > (Page->len - MaxVisible_Number))
-        first_line -= ((Page->len-MaxVisible_Number)*Font_Size);  //除去不移动时的项目数
-        else first_line -= Font_Size;
     }
-    else if (((next_item->id - now_item->id) < 0) && Page_State == CURSOR_STATIC)
+
+    for (uint16 i = 1; i <= Page->len; i++)
     {
-        Page_State = MENU_MOVE;
-        if((now_item->id - next_item->id) > (Page->len - MaxVisible_Number))
-        first_line += ((Page->len-MaxVisible_Number)*Font_Size);  //除去不移动时的项目数
-        else first_line += Font_Size;
-    }
-    for (size_t i = 1; i <= Page->len; i++)
-    {
-        if((first_line + i * LineSpacing) <= FirstLine);      //菜单移动时不让标题移动
-        else u8g2.drawStr(pos, first_line + i * LineSpacing, temp->itemName);
+        if((first_line + i * LineSpacing) > FirstLine)      //菜单移动时不让标题移动
+        {
+            OLED_DrawStr(pos, first_line + i * LineSpacing, temp->ItemName);
+            if(temp->ItemType == SWITCH)
+            {
+                if(temp->SwitchState == false)OLED_DrawFrame(pos + 95, first_line + i * LineSpacing - Font_Size + 3, 10, 10);
+                else OLED_DrawBox(pos + 95, first_line + i * LineSpacing - Font_Size + 3, 10, 10);
+            }
+            if(temp->ItemType == DATA)
+            {
+                sprintf(Data, "%d", *temp->data);
+                OLED_DrawStr(pos + 95, first_line + i * LineSpacing, Data);
+            }
+        }
         temp = temp->nextiTem;
     }
-    u8g2.drawStr(pos, FirstLine, Page->PageName); 
-  
+    OLED_DrawStr(pos, FirstLine, Page->PageName); 
 }
 
-void Draw_Menu(uint8_t pos, xpMenu Page, uint8_t LineSpacing, xpItem now_item,xpItem next_item)
+void Draw_Menu(uint8_t pos, xpPage Page, uint8_t LineSpacing, xpItem now_item,xpItem next_item)
 {
     uint8_t t = 0;
-    uint8_t item_wide = strlen(now_item->itemName)*6+4;
+    uint8_t item_wide = strlen(now_item->ItemName)*6 + 4;
     static uint8_t item_line = LINE_MIN;
-    static int8_t Targrt_line = 0;
+    static int16_t Targrt_line = 0;
     static uint8_t first = 0;     //初始状态
 
-    u8g2.setMaxClipWindow();
-    u8g2.setFont(MENU_FONT);
+    OLED_SetMaxClipWindow();
+    OLED_SetFont(MENU_FONT);
+
+    Page->itemTail->nextiTem = Page->itemHead;  
+    Page->itemHead->lastiTem = Page->itemTail;
     
-    if(next_item == now_item->JumpPage->itemHead && next_item != now_item)        //切换页面时变量初始化
+    if(next_item == now_item->JumpPage->itemHead)        //切换页面时变量初始化
     {
         item_line = LINE_MIN;
         Targrt_line = 0;
         first = 0;
-        Page_State = 0;
+        Page_State = MENU_RUN;
     }
     if (((next_item->id - now_item->id) == 0 && first == 0) || next_item == now_item->JumpPage->itemHead)
     {
         Targrt_line = LINE_MIN;
         first = 1;
     }
-    else if ((next_item->id - now_item->id)>0)
+    else if ((next_item->id - now_item->id) > 0)
     {
         Targrt_line += ((next_item->id-now_item->id)*Font_Size);
         if (Targrt_line > LINE_MAX)  //防止光标溢出可视范围
@@ -261,80 +262,76 @@ void Draw_Menu(uint8_t pos, xpMenu Page, uint8_t LineSpacing, xpItem now_item,xp
             Targrt_line = LINE_MIN;
         }
     }
-    Page->itemTail->nextiTem = Page->itemHead;  
-    Page->itemHead->lastiTem = Page->itemTail;
+
     do
     {
-        u8g2.clearBuffer();
+        OLED_ClearBuffer();
         t++;
-        u8g2.setDrawColor(BgColor);
-        u8g2.drawBox(0, 0, 128, 64);
-        u8g2.setDrawColor(BgColor^0x01);
+        OLED_SetDrawColor(BgColor);
+        OLED_DrawBox(0, 0, 128, 64);
+        OLED_SetDrawColor(BgColor^0x01);
         Draw_OptionPlace(t, now_item, next_item);
         Draw_Page(pos, Page, LineSpacing, now_item, next_item);
-        u8g2.setDrawColor(2);
+        OLED_SetDrawColor(2);
         item_line = PID(Targrt_line, item_line, &Cursor);
         if(t >= Options_Time)item_line = Targrt_line;
-        item_wide = PID(strlen(next_item->itemName)*6+4, item_wide, &Cursor);
-        if(t >= Options_Time)item_wide = strlen(next_item->itemName)*6+4;
-        u8g2.drawRBox(pos+1, item_line-1, item_wide, Font_Size, 4);
-        u8g2.sendBuffer();
+        item_wide = PID(strlen(next_item->ItemName)*6 + 4, item_wide, &Cursor);
+        if(t >= Options_Time)item_wide = strlen(next_item->ItemName)*6 + 4;
+        OLED_DrawRBox(pos+1, item_line-1, item_wide, Font_Size, 4);
+        OLED_SendBuffer();
     } while (t < Options_Time);
 }
+
+int Contrast = 255;
+extern ArmRobot_Angle ArmRobotAngle;
 
 void Menu_Team(void)
 {
     AddPage("[HomePage]", &Home_Page);
-        AddItem(" +System", &System_Item, &Home_Page, &System_Page, NULL);
+        AddItem(" +System", PARENTS, NULL, &System_Item, &Home_Page, &System_Page, NULL);
             AddPage("[System]", &System_Page);
-                AddItem(" -MPU6050", &MPU6050_Item, &System_Page, NULL, Show_MPU6050);
-                AddItem(" -Speed", &Speed_Item, &System_Page, &System_Page, Setting_Speed);
-                AddItem(" -Mode", &Mode_Item, &System_Page, &System_Page, White_Dark_Day);
-                AddItem(" -Clock", &Clock_Item, &System_Page, &System_Page, NULL);
-                AddItem(" -Return", &SystemReturn_Item, &System_Page, &Home_Page, NULL);
-        AddItem(" +ArmAxis",&ArmAxis_Item,&Home_Page,&ArmAxis_Page,NULL);
+                AddItem(" -MPU6050", CUSTOM, NULL, &MPU6050_Item, &System_Page, NULL, Show_MPU6050);
+                AddItem(" -Speed", DATA, &Options_Time, &Speed_Item, &System_Page, NULL, Setting_Speed);
+                AddItem(" -Mode", SWITCH, NULL, &Mode_Item, &System_Page, NULL, White_Dark_Day);
+                AddItem(" -Contrast", DATA, &Contrast, &Contrast_Item, &System_Page, NULL, Setting_Contrast);
+                AddItem(" -Power", SWITCH, NULL, &Power_Item, &System_Page, NULL, PowerSave);
+                AddItem(" -Return", PARENTS, NULL, &SystemReturn_Item, &System_Page, &Home_Page, NULL);
+        AddItem(" +ArmAxis", PARENTS, NULL, &ArmAxis_Item,&Home_Page,&ArmAxis_Page,NULL);
             AddPage("[ArmAxis]", &ArmAxis_Page);
-                AddItem(" -X", &Arm_ItemX, &ArmAxis_Page, &ArmAxis_Page, Arm_SetX);
-                AddItem(" -Y", &Arm_ItemY, &ArmAxis_Page, &ArmAxis_Page, Arm_SetY);
-                AddItem(" -Z", &Arm_ItemZ, &ArmAxis_Page, &ArmAxis_Page, Arm_SetZ);
-                AddItem(" -Move", &AxisMove_Item, &ArmAxis_Page, &ArmAxis_Page, ArmAxis_Move);
-                AddItem(" -Return", &ArmAxisReturn_Item, &ArmAxis_Page, &Home_Page, NULL);
-        AddItem(" +ArmAngle",&ArmAngle_Item,&Home_Page,&ArmAngle_Page,NULL);
+                AddItem(" -X", DATA, &ArmRobotAngle.AxisX, &Arm_ItemX, &ArmAxis_Page, NULL, Arm_SetX);
+                AddItem(" -Y", DATA, &ArmRobotAngle.AxisY, &Arm_ItemY, &ArmAxis_Page, NULL, Arm_SetY);
+                AddItem(" -Z", DATA, &ArmRobotAngle.AxisZ, &Arm_ItemZ, &ArmAxis_Page, NULL, Arm_SetZ);
+                AddItem(" -Move", CUSTOM, NULL, &AxisMove_Item, &ArmAxis_Page, NULL, ArmAxis_Move);
+                AddItem(" -Return", PARENTS, NULL, &ArmAxisReturn_Item, &ArmAxis_Page, &Home_Page, NULL);
+        AddItem(" +ArmAngle",PARENTS, NULL, &ArmAngle_Item, &Home_Page,&ArmAngle_Page,NULL);
             AddPage("[ArmAngle]", &ArmAngle_Page);
-                AddItem(" -Base", &BaseAngle_Item, &ArmAngle_Page, &ArmAngle_Page, Arm_SetBaseAngle);
-                AddItem(" -BigArm", &BigArmAngle_Item, &ArmAngle_Page, &ArmAngle_Page, Arm_SetBigArmAngle);
-                AddItem(" -Forearm", &ForearmAngle_Item, &ArmAngle_Page, &ArmAngle_Page, Arm_SetForearmAngle);
-                AddItem(" -Motion Save", &AngleMove_Item, &ArmAngle_Page, &ArmAngle_Page, ArmMotionSave);
-                AddItem(" -Motion Tree", &MotionTree_Item, &ArmAngle_Page, &MotionTree_Page, NULL);
+                AddItem(" -Base", DATA, &ArmRobotAngle.Base_Angle, &BaseAngle_Item, &ArmAngle_Page, NULL, Arm_SetBaseAngle);
+                AddItem(" -BigArm", DATA, &ArmRobotAngle.BigArm_Angle, &BigArmAngle_Item, &ArmAngle_Page, NULL, Arm_SetBigArmAngle);
+                AddItem(" -Forearm", DATA, &ArmRobotAngle.Forearm_Angle, &ForearmAngle_Item, &ArmAngle_Page, NULL, Arm_SetForearmAngle);
+                AddItem(" -Clamp", DATA, &ArmRobotAngle.Clamp_Angle, &ClampAngle_Item, &ArmAngle_Page, NULL, Arm_ClampAngle);
+                AddItem(" -Motion Save", CUSTOM, NULL, &AngleMove_Item, &ArmAngle_Page, NULL, ArmMotionSave);
+                AddItem(" -Motion Tree", PARENTS, NULL, &MotionTree_Item, &ArmAngle_Page, &MotionTree_Page, NULL);
                     AddPage("[Motion Tree]", &MotionTree_Page);
                     /*动作树*/
-                    AddItem(" ---", &MotionTreeReturn_Item, &MotionTree_Page, &ArmAngle_Page, NULL);
-                    AddItem(" -Loop", &ExecuteMotions_Item, &MotionTree_Page, &ArmAngle_Page, MotionRun);
-                AddItem(" -Reset", &Reset_Item, &ArmAngle_Page, &ArmAngle_Page, ResetAngle);
-                AddItem(" -Return", &ArmAngleReturn_Item, &ArmAngle_Page, &Home_Page, NULL);
-        AddItem(" +Games", &Games_Item, &Home_Page, &Games_Page, NULL);
-            AddPage("[Games]", &Games_Page);
-                AddItem(" -Dino Game", &Dino_Item, &Games_Page, &Games_Page, NULL);
-                AddItem(" -AirPlane Game", &AirPlane_Item, &Games_Page, &Games_Page, NULL);
-                AddItem(" -Return", &GamesReturn_Item, &Games_Page, &Home_Page, NULL);
-        AddItem(" -ShowLogo", &ShowLogo_Item, &Home_Page, &Home_Page, Show_Log);
-        AddItem(" -Github", &Github_Item, &Home_Page, &Home_Page, Show_GitHub);
-        AddItem(" -Bilibili", &Bilibili_Item, &Home_Page, &Home_Page, Show_Bilibili);
-        AddItem(" -ReadME", &ReadME_Item, &Home_Page, &Home_Page, NULL);
+                    AddItem(" ---", PARENTS, NULL, &MotionTreeReturn_Item, &MotionTree_Page, &ArmAngle_Page, NULL);
+                    AddItem(" -Loop", CUSTOM, NULL, &ExecuteMotions_Item, &MotionTree_Page, NULL, MotionRun);
+                AddItem(" -Reset", CUSTOM, NULL, &Reset_Item, &ArmAngle_Page, NULL, ResetAngle);
+                AddItem(" -Return", PARENTS, NULL, &ArmAngleReturn_Item, &ArmAngle_Page, &Home_Page, NULL);
+        AddItem(" -ShowLogo", CUSTOM, NULL, &ShowLogo_Item, &Home_Page, NULL, Show_Log);
+        AddItem(" -Github", CUSTOM, NULL, &Github_Item, &Home_Page, NULL, Show_GitHub);
+        AddItem(" -Bilibili", CUSTOM, NULL, &Bilibili_Item, &Home_Page, NULL, Show_Bilibili);
 }
 
-uint8_t MENU_STATE = MENU_RUN;
-uint8_t disapper = 1;
+Menu_State MENU_STATE = MENU_RUN;
 //初始化为开始菜单项
 xpItem temp_item = &System_Item;
-Itemfunction App_Function;
 
-void Switch_Menu_State(uint8_t state)
+void Switch_Menu_State(Menu_State state)
 {
     MENU_STATE = state;
 }
 
-uint8_t BtnScan(void)
+Menu_State BtnScan(void)
 {
     if(ButtonScan()==Up)return MENU_UP;
     else if(ButtonScan()==Down)return MENU_DOWN;
@@ -342,8 +339,9 @@ uint8_t BtnScan(void)
     return MENU_NONE;
 }
 
-void Process_Menu_Run(uint8_t Dir)
+void Process_Menu_Run(Menu_State Dir)
 {
+    uint8_t disapper = 1;
     switch (Dir)
     {
         case MENU_UP:
@@ -357,13 +355,7 @@ void Process_Menu_Run(uint8_t Dir)
         case MENU_ENTER:
             if (MENU_STATE == MENU_RUN)
             {
-                if (temp_item->Itemfunction != NULL)
-                {
-                    ui_disapper(disapper);
-                    App_Function = temp_item->Itemfunction;
-                    Switch_Menu_State(APP_RUN);
-                }
-                else
+                if(temp_item->ItemType == PARENTS)
                 {
                     Switch_Menu_State(MENU_RUN);
                     for (size_t i = 0; i < 8; i++)
@@ -372,6 +364,11 @@ void Process_Menu_Run(uint8_t Dir)
                     }
                     Draw_Menu(FirstPos, temp_item->JumpPage, Font_Size, temp_item, temp_item->JumpPage->itemHead);
                     temp_item = temp_item->JumpPage->itemHead;
+                }
+                else
+                {
+                    ui_disapper(disapper);
+                    Switch_Menu_State(APP_RUN);
                 }
             }
             if(MENU_STATE == APP_BREAK)
@@ -389,41 +386,50 @@ void Process_Menu_Run(uint8_t Dir)
     }
 }
 
-void Process_App_Run(void)
+void Process_App_Run(xpItem item)
 {
-    (*App_Function)();
+    if (item->ItemType == SWITCH)
+    {
+        item->SwitchState = ! item->SwitchState;
+        AppBreak();
+    }
+    (item->item_function)(item);
 }
 
 void Menu_Task(void)
 {
-    uint8_t Dir = BtnScan();
-    
-    switch (MENU_STATE)
+    Menu_State Dir = BtnScan();
+    static bool Start;
+
+    if (Start == true)
     {
-        case MENU_RUN:
-            Process_Menu_Run(Dir);
-            break;
-            
-        case APP_RUN:
-            Process_App_Run();
-            break;
-            
-        case APP_BREAK:
-            Process_Menu_Run(Dir);
-            break;
-            
-        default:
-            break;
+        switch (MENU_STATE)
+        {
+            case MENU_RUN:
+            case APP_BREAK:
+                Process_Menu_Run(Dir);
+                break;
+
+            case APP_RUN:
+                Process_App_Run(temp_item);
+                break;
+                
+            default:
+                break;
+        }
     }
+
+    if (Dir != MENU_NONE && Start == false)
+    {
+        Draw_Menu(FirstPos, &Home_Page, Font_Size, &System_Item, &System_Item);
+        Start = true;
+    }
+    
 }
 
 void Menu_Init(void)
 {
-    u8g2.begin();
-    u8g2.enableUTF8Print();
+    disp_init();
     Menu_Team();
-    ArmMotionInit();
-    Draw_Process();
-    //画出第一页菜单
-    Draw_Menu(FirstPos, &Home_Page, Font_Size, &System_Item, &System_Item);
+    Draw_Home();
 }
