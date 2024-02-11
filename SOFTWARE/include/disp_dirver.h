@@ -6,6 +6,7 @@
 void disp_init(void);
 void OLED_ClearBuffer(void);
 void OLED_SendBuffer(void);
+uint16_t OLED_GetStrWidth(const char *s);
 void OLED_SetMaxClipWindow(void);
 void OLED_SetFont(const uint8_t  *font);
 void OLED_DrawPixel(uint16_t x, uint16_t y);

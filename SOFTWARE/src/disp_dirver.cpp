@@ -19,6 +19,11 @@ void OLED_SendBuffer(void)
     u8g2.sendBuffer();
 }
 
+uint16_t OLED_GetStrWidth(const char *s)
+{
+    return u8g2.getStrWidth(s);
+}
+
 void OLED_SetMaxClipWindow(void)
 {
     u8g2.setMaxClipWindow();

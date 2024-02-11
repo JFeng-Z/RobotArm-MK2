@@ -24,6 +24,9 @@
 
 typedef struct pid_error
 {
+    int kp;
+    int ki;
+    int kd;
     float error;
     float sum_srror;
     float last_error;
@@ -47,18 +50,19 @@ typedef enum menu_state
 typedef enum item_type
 {
     PARENTS,
-    CUSTOM,
+    LOOP_FUNCTION,
+    ONCE_FUNCTION,
     SWITCH,
     DATA
 }Item_Type;
 
 typedef struct Page *xpPage;
 typedef struct Item *xpItem;
-typedef void (*Itemfunction)(xpItem);
+typedef void (*ItemFunction)(xpItem);
 typedef struct Page
 {
     const char *PageName;
-    uint8_t len;
+    uint8_t length;
     xpItem ParentiTem;
     xpItem itemHead;
     xpItem itemTail;
@@ -73,7 +77,7 @@ typedef struct Item
     uint8_t id;
     xpPage location, JumpPage;
     xpItem lastiTem, nextiTem;
-    Itemfunction item_function;
+    ItemFunction itemFunction;
 } xItem;
 
 #endif

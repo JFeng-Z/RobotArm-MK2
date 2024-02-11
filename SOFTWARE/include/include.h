@@ -2,14 +2,14 @@
 #define _INCLUDE_H_
 
 #include <Arduino.h>
+#include <U8g2lib.h>
 #include "menu.h"
 #include "application.h"
 #include "ArmControl.h"
 #include <Servo.h> 
-#include "LittleFS.h"
+#include "button.h"
 extern "C"{
     #include "InverseKinematics.h"
-    #include "button.h"
 }
 
 #endif

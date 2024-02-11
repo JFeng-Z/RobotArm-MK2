@@ -1,1 +1,4 @@
 olikraus/U8g2@^2.35.8
+ESPUI
+ESPAsyncTCP
+ESP Async WebServer

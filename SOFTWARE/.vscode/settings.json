@@ -15,6 +15,12 @@
         "u8g2lib.h": "c",
         "button.h": "c",
         "cmath": "c",
-        "arduino.h": "c"
+        "arduino.h": "c",
+        "menu.h": "c",
+        "armrobotconfig.h": "c",
+        "disp_dirver.h": "c",
+        "inversekinematics.h": "c",
+        "chrono": "cpp",
+        "APPLICATION.H": "cpp"
     }
 }

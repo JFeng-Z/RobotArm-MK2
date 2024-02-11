@@ -1,5 +1,5 @@
-#ifndef _button_H_
-#define _button_H_
+#ifndef _BUTTON_H_
+#define _BUTTON_H_
 
 #include "Arduino.h"
 
@@ -14,5 +14,8 @@ typedef enum BtnEnum
 }BtnState;
 
 BtnState ButtonScan(void);
+BtnState Button_Scan(void);
+void buttonInit(void);
+void clearButtonstate(void);
 
 #endif
