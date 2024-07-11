@@ -4,21 +4,13 @@
 #include "include.h"
 #include "MenuConfig.h"
 
-void Menu_Team(void);
-void AddPage(const char *name, xpPage page);
-void AddItem(const char *Name, Item_Type Type, int *Data, xpItem item, xpPage LocalPage, xpPage nextpage, ItemFunction function);
-int8_t Line(uint8_t AllTime,uint8_t Time_Now,int8_t Tgt,int8_t Now);
-int PID(int Targrt, int Now, Pid_Error *Obj);
-bool Draw_OptionPlace(xpItem now_item, xpItem next_item);
-void Draw_DialogBox(uint16_t x,uint16_t y,uint16_t w,uint16_t h);
-void Draw_DialogRBox(uint16_t x,uint16_t y,uint16_t w,uint16_t h,uint16_t r);
-void DialogScale_Show(uint8_t x,uint8_t y,uint8_t Targrt_w,uint8_t Targrt_h);
-void Draw_Page(uint8_t pos, xpPage Page, uint8_t LineSpacing, xpItem now_item,xpItem next_item);
-void Draw_Menu(uint8_t pos, xpPage Page, uint8_t LineSpacing, xpItem now_item,xpItem next_item);
-uint8_t ui_disapper(uint8_t disapper);
-void Switch_Menu_State(Menu_State state);
-Menu_State BtnScan(void);
-void Menu_Task(void);
-void Menu_Init(void);
+void AddItem(const char *Name, Item_Type Type, element_t *Element, const uint8_t *Image, xpItem item, xpPage LocalPage, xpPage nextpage, ItemFunction function);
+void Draw_DialogBox(xpMenu Menu, uint16_t x,uint16_t y,uint16_t w,uint16_t h);
+void Draw_DialogRBox(xpMenu Menu, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t r);
+uint8_t DialogScale_Show(xpMenu Menu, int16_t x,int16_t y,int16_t Targrt_w,int16_t Targrt_h);
+void Set_BgColor(xpMenu Menu, uint8_t color);
+void Draw_Scrollbar(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t r, float step, data_t *data);
+void Menu_Loop(xpMenu menu);
+void Menu_Init(xpMenu Menu);
 
 #endif

@@ -16,32 +16,34 @@ extern ArmRobot_Angle ArmRobotAngle;
 
 void base_slider(Control* sender, int type)
 {
+    int temp = sender->value.toInt();
     ArmRobotAngle.Base_Angle = sender->value.toInt();
-    SetBaseAngle(sender->value.toInt());
+    SetBaseAngle(&temp);
 }
 
 void bigarm_slider(Control* sender, int type)
 {
+    int temp = sender->value.toInt();
     ArmRobotAngle.BigArm_Angle = sender->value.toInt();
-    SetBigArmAngle(sender->value.toInt());
+    SetBigArmAngle(&temp);
 }
 
 void forearm_slider(Control* sender, int type)
 {
+    int temp = sender->value.toInt();
     ArmRobotAngle.Forearm_Angle = sender->value.toInt();
-    SetForearmAngle(sender->value.toInt());
+    SetForearmAngle(&temp);
 }
 
-extern xpItem temp_item;
+extern xMenu menu;
 
 void save_button(Control* sender, int type)
 {
     switch (type)
     {
     case B_DOWN:
-        ArmMotionSave(temp_item);
+        ArmMotionSave(&menu);
         break;
-
     case B_UP:
         Serial.println("Save success!");
         break;

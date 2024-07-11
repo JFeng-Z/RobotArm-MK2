@@ -3,7 +3,7 @@
 
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE, SCL, SDA);
 
-void disp_init(void)
+void Disp_Init(void)
 {
     u8g2.begin();
     u8g2.enableUTF8Print();
@@ -49,9 +49,9 @@ uint16_t OLED_DrawStr(uint16_t x, uint16_t y, const char *str)
     return u8g2.drawStr(x, y, str);
 }
 
-void OLED_SetDrawColor(uint8_t color)
+void OLED_SetDrawColor(void *color)
 {
-    u8g2.setDrawColor(color);
+    u8g2.setDrawColor(*(uint8_t *)color);
 }
 
 void OLED_DrawFrame(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
@@ -84,14 +84,14 @@ void OLED_DrawXBMP(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint8_t
     u8g2.drawXBMP(x, y, w, h, bitmap);
 }
 
-void OLED_SetContrast(uint8_t value)
+void OLED_SetContrast(void *value)
 {
-    u8g2.setContrast(value);
+    u8g2.setContrast(*(uint8_t *)value);
 }
 
-void OLED_SetPowerSave(uint8_t is_enable)
+void OLED_SetPowerSave(void *is_enable)
 {
-    u8g2.setPowerSave(is_enable);
+    u8g2.setPowerSave(*(uint8_t *)is_enable);
 }
 
 uint8_t OLED_GetBufferTileHeight(void)

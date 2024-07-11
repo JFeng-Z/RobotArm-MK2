@@ -8,8 +8,6 @@
 #include "ArmControl.h"
 #include <Servo.h> 
 #include "button.h"
-extern "C"{
-    #include "InverseKinematics.h"
-}
+#include "InverseKinematics.h"
 
 #endif
