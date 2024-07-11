@@ -14,5 +14,6 @@ void AngleMove(uint8_t BaseTargrt, uint8_t BigArmTargrt, uint8_t ForearmTargrt, 
 void ArmMotionInit(void);
 void MotionSave(xpItem AngleItem, uint8_t BaseAng, uint8_t BigArmAng, uint8_t ForearmAng, uint8_t ClampAng);
 void ResetAngle(xpMenu Menu);
+void kinematics(void *value);
 
 #endif

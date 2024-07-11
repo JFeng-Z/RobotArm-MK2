@@ -106,6 +106,36 @@ data_t ForearmAngle_data = {
     .min = 0,
     .step = 1
 };
+data_t axisX_data = {
+    .name = "axisX",
+    .ptr = &ArmRobotAngle.AxisX,
+    .function = kinematics,
+    .Function_Type = EXIT_EXECUTE,
+    .Data_Type = DATA_INT,
+    .max = 500,
+    .min = -500,
+    .step = 1
+};
+data_t axisY_data = {
+    .name = "axisY",
+    .ptr = &ArmRobotAngle.AxisY,
+    .function = kinematics,
+    .Function_Type = EXIT_EXECUTE,
+    .Data_Type = DATA_INT,
+    .max = 500,
+    .min = -500,
+    .step = 1
+};
+data_t axisZ_data = {
+    .name = "axisZ",
+    .ptr = &ArmRobotAngle.AxisZ,
+    .function = kinematics,
+    .Function_Type = EXIT_EXECUTE,
+    .Data_Type = DATA_INT,
+    .max = 500,
+    .min = -500,
+    .step = 1
+};
 
 void ParameterSetting_Widget(xpMenu Menu)
 {

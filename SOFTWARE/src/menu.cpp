@@ -771,7 +771,7 @@ xItem SettingTextPageHead_Item, TextSpace_Item;
 xItem SettingImagePageHead_Item, ImageSpace_Item;
 xItem MPU6050_Item, CursorAnimation_Item, SettingTextPage_Item, SettingImagePage_Item, Mode_Item, Contrast_Item, Power_Item;
 xItem Wave_Item;
-xItem ARM_Control_Page_Item, ARM_Control_Head_Item, ARM_Base_Item, ARM_BigArm_Item, ARM_Forearm_Item, ArmMotionSave_Item, Execute_Motions_Item;
+xItem ARM_Control_Page_Item, ARM_Control_Head_Item, ARM_Base_Item, ARM_BigArm_Item, ARM_Forearm_Item, ArmMotionSave_Item, Execute_Motions_Item, AxisX_Item, AxisY_Item, AxisZ_Item;
 
 element_t Contrast_element = {&Contrast_data, NULL};
 element_t CursorKp_element = {&Cursorkp_data, NULL};
@@ -787,6 +787,9 @@ element_t Wave_element = {&Wave_data, NULL};
 element_t BaseAngle_element = {&BaseAngle_data, NULL};
 element_t BigArmAngle_element = {&BigArmAngle_data, NULL};
 element_t ForearmAngle_element = {&ForearmAngle_data, NULL};
+element_t AxisX_element = {&axisX_data, NULL};
+element_t AxisY_element = {&axisY_data, NULL};
+element_t AxisZ_element = {&axisZ_data, NULL};
 
 /*
  * 菜单构建函数
@@ -829,6 +832,9 @@ static void Craete_MenuTree(xpMenu Menu)
                 AddItem(" -Base", DATA, &BaseAngle_element, logo_allArray[9], &ARM_Base_Item, &ARM_Control_Page, NULL, NULL);
                 AddItem(" -BigArm", DATA, &BigArmAngle_element, logo_allArray[9], &ARM_BigArm_Item, &ARM_Control_Page, NULL, NULL);
                 AddItem(" -Forearm", DATA, &ForearmAngle_element, logo_allArray[9], &ARM_Forearm_Item, &ARM_Control_Page, NULL, NULL);
+                AddItem(" -Axis X", DATA, &AxisX_element, logo_allArray[9], &AxisX_Item, &ARM_Control_Page, NULL, NULL);
+                AddItem(" -Axis Y", DATA, &AxisY_element, logo_allArray[9], &AxisY_Item, &ARM_Control_Page, NULL, NULL);
+                AddItem(" -Axis Z", DATA, &AxisZ_element, logo_allArray[9], &AxisZ_Item, &ARM_Control_Page, NULL, NULL);
                 AddItem(" -Motion Save", ONCE_FUNCTION, NULL, logo_allArray[9], &ArmMotionSave_Item, &ARM_Control_Page, NULL, ArmMotionSave);
                 AddItem(" -Execute Motions", LOOP_FUNCTION, NULL, logo_allArray[9], &Execute_Motions_Item, &ARM_Control_Page, NULL, Execute_Motions);
 }

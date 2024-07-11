@@ -60,14 +60,17 @@ double tf = 100;
 
 void ARM_Control(int x,int y,int z)
 {
-    // uint8_t base = Base.read(), bigArm = BigArm.read(), forearm = Forearm.read();
-    // for (double t = 0; t <= tf; t +=timestep) 
-    // { 
-    //     Quit_Inspect();
-    //     SetBaseAngle(TripleDiff(base, BaseAngle(x,y), tf, t));
-    //     SetBigArmAngle(TripleDiff(bigArm, BigArmAngle(x,y,z), tf, t));
-    //     SetForearmAngle(TripleDiff(forearm, ForearmAngle(x,y,z), tf, t));
-    // }
+    uint8_t base = Base.read(), bigArm = BigArm.read(), forearm = Forearm.read();
+    int base_diff, bigArm_diff, forearm_diff, clamp_diff;
+    for (double t = 0; t <= tf; t +=timestep) 
+    { 
+        base_diff = TripleDiff(base, BaseAngle(x,y), tf, t);
+        bigArm_diff = TripleDiff(bigArm, BigArmAngle(x,y,z), tf, t);
+        forearm_diff = TripleDiff(forearm, ForearmAngle(x,y,z), tf, t);
+        SetBaseAngle(&base_diff);
+        SetBigArmAngle(&bigArm_diff);
+        SetForearmAngle(&forearm_diff);
+    }
 }
 
 void AngleMove(uint8_t BaseTargrt, uint8_t BigArmTargrt, uint8_t ForearmTargrt, uint8_t ClampTarget)
@@ -121,7 +124,7 @@ void MotionSave(xpItem AngleItem, uint8_t BaseAng, uint8_t BigArmAng, uint8_t Fo
     tail->angle_item = AngleItem;
 }
 
-ArmRobot_Angle ArmRobotAngle = {0, 0, 0, 180, 0, 0, 0};
+ArmRobot_Angle ArmRobotAngle = {0, 0, 0, 180, 10, 10, 10};
 
 void ResetAngle(xpMenu Menu)
 {
@@ -133,4 +136,9 @@ void ResetAngle(xpMenu Menu)
     SetBigArmAngle(&ArmRobotAngle.BigArm_Angle);
     SetForearmAngle(&ArmRobotAngle.Forearm_Angle);
     SetClampAngle(&ArmRobotAngle.Clamp_Angle);
+}
+
+void kinematics(void *value) 
+{
+    ARM_Control(ArmRobotAngle.AxisX, ArmRobotAngle.AxisY, ArmRobotAngle.AxisZ);
 }
